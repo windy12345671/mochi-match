@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#fff5f8">
+<title>心灵感应 · 两人默契大考验</title>
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💞</text></svg>">
+</head>
+<body>
+
+<div class="bg-deco"></div>
+
+<main class="app">
+
+  <!-- ============ 首页 ============ -->
+  <section class="view active" id="view-home">
+    <header class="hero">
+      <div class="hero-emoji">💞</div>
+      <h1>心灵感应</h1>
+      <p class="hero-sub">两个人，同一个词。<br>限时 60 秒，看看你们有多默契。</p>
+    </header>
+
+    <div class="card">
+      <label class="field">
+        <span class="field-label">你的昵称</span>
+        <input type="text" id="in-nick" maxlength="12" placeholder="比如：小明" autocomplete="off">
+      </label>
+
+      <div class="field">
+        <span class="field-label">房间码 <em class="hint">（和对方约定同一个 4 位数字）</em></span>
+        <div class="code-input" id="code-input">
+          <input type="text" inputmode="numeric" maxlength="1" data-i="0" autocomplete="off">
+          <input type="text" inputmode="numeric" maxlength="1" data-i="1" autocomplete="off">
+          <input type="text" inputmode="numeric" maxlength="1" data-i="2" autocomplete="off">
+          <input type="text" inputmode="numeric" maxlength="1" data-i="3" autocomplete="off">
+        </div>
+        <button class="btn-ghost small" id="btn-random-code" type="button">🎲 随机一个</button>
+      </div>
+
+      <label class="field">
+        <span class="field-label">本局轮数</span>
+        <select id="in-rounds">
+          <option value="0" selected>不限（玩到尽兴）</option>
+          <option value="3">3 轮</option>
+          <option value="5">5 轮</option>
+          <option value="10">10 轮</option>
+        </select>
+      </label>
+
+      <button class="btn-primary" id="btn-start" type="button">开始匹配</button>
+      <div class="conn-line">
+        <span class="dot" id="dot-home"></span>
+        <span id="conn-home-text">未连接</span>
+      </div>
+    </div>
+
+    <div class="home-links">
+      <button class="btn-text" id="btn-open-history" type="button">📚 默契档案（历史存档）</button>
+      <button class="btn-text" id="btn-open-settings" type="button">⚙️ 连接设置</button>
+      <button class="btn-text" id="btn-open-help" type="button">❓ 怎么玩</button>
+    </div>
+
+    <p class="foot-note">无需注册，无需下载。把网址发给朋友，约好 4 位数字即可开玩。</p>
+  </section>
+
+  <!-- ============ 匹配中 ============ -->
+  <section class="view" id="view-match">
+    <div class="card center">
+      <h2 class="card-title">等待伙伴加入</h2>
+      <div class="big-code" id="match-code">----</div>
+      <button class="btn-text tiny" id="btn-copy-code" type="button">复制房间码</button>
+
+      <div class="ring-wrap">
+        <svg class="ring" viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="52"></circle>
+          <circle class="ring-fg" cx="60" cy="60" r="52" id="ring-fg"></circle>
+        </svg>
+        <div class="ring-text"><span id="match-count">60</span><small>秒</small></div>
+      </div>
+
+      <p class="match-status" id="match-status">正在寻找输入同一房间码的人…</p>
+      <p class="match-tip">把房间码告诉对方，让 TA 在 60 秒内输入同一个数字。</p>
+      <button class="btn-ghost" id="btn-cancel-match" type="button">取消</button>
+    </div>
+  </section>
+
+  <!-- ============ 游戏 ============ -->
+  <section class="view" id="view-game">
+    <div class="game-top">
+      <div class="gt-left">
+        <span class="gt-round">第 <b id="g-round">1</b> <span id="g-round-total"></span> 轮</span>
+        <span class="gt-score">命中 <b id="g-hit">0</b>/<b id="g-total">0</b></span>
+      </div>
+      <div class="gt-right">
+        <span class="peer" id="g-peer">对方</span>
+        <span class="dot online" id="dot-game" title="连接状态"></span>
+      </div>
+    </div>
+
+    <div class="timer-bar"><div class="timer-fill" id="g-timer"></div></div>
+    <div class="timer-num" id="g-timer-num"></div>
+
+    <!-- 阶段：答题 -->
+    <div class="stage" id="stage-answer">
+      <div class="card">
+        <h2 class="card-title">说出你脑海里的词</h2>
+        <p class="stage-tip">想到什么就写什么，60 秒内锁定答案。</p>
+        <input type="text" id="in-word" class="word-input" maxlength="20" placeholder="输入一个词语…" autocomplete="off">
+        <div class="inspire">
+          <button class="btn-ghost small" id="btn-inspire" type="button">💡 给点灵感</button>
+          <span id="inspire-text"></span>
+        </div>
+        <button class="btn-primary" id="btn-lock" type="button">锁定答案</button>
+        <p class="peer-state" id="peer-state-answer">对方正在思考…</p>
+      </div>
+    </div>
+
+    <!-- 阶段：已锁定，等待 -->
+    <div class="stage" id="stage-wait">
+      <div class="card center">
+        <div class="lock-emoji">🔒</div>
+        <h2 class="card-title">已锁定</h2>
+        <div class="my-word-preview" id="wait-word"></div>
+        <p class="stage-tip" id="wait-tip">等待对方作答…</p>
+      </div>
+    </div>
+
+    <!-- 阶段：揭晓 -->
+    <div class="stage" id="stage-reveal">
+      <div class="reveal-grid">
+        <div class="word-card" id="wc-me">
+          <div class="wc-owner">你</div>
+          <div class="wc-word" id="wc-me-word">—</div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="word-card" id="wc-peer">
+          <div class="wc-owner" id="wc-peer-owner">对方</div>
+          <div class="wc-word" id="wc-peer-word">—</div>
+        </div>
+      </div>
+      <div class="reveal-banner" id="reveal-banner"></div>
+    </div>
+
+    <!-- 阶段：判定 -->
+    <div class="stage" id="stage-judge">
+      <div class="card">
+        <h2 class="card-title">意思一样吗？</h2>
+        <p class="stage-tip">只有两个人都按下「匹配成功」，这一题才算默契命中。</p>
+        <div class="judge-words">
+          <div class="jw"><span>你</span><b id="jw-me">—</b></div>
+          <div class="jw"><span id="jw-peer-name">对方</span><b id="jw-peer">—</b></div>
+        </div>
+        <button class="btn-success" id="btn-agree" type="button">匹配成功<span class="sub">（意思一致）</span></button>
+        <button class="btn-ghost wide" id="btn-next-round" type="button">下一题</button>
+        <p class="peer-state" id="peer-state-judge">等待对方决定…</p>
+      </div>
+    </div>
+
+    <!-- 阶段：本轮结果 -->
+    <div class="stage" id="stage-result">
+      <div class="card center">
+        <div class="result-emoji" id="res-emoji">🎉</div>
+        <h2 class="card-title" id="res-title">默契命中！</h2>
+        <div class="result-words" id="res-words"></div>
+        <div class="result-meta" id="res-meta"></div>
+        <button class="btn-primary" id="btn-continue" type="button">下一轮</button>
+        <button class="btn-text" id="btn-finish" type="button">结束本局，看战报</button>
+        <p class="peer-state" id="peer-state-result"></p>
+      </div>
+    </div>
+
+    <!-- 本局流水 -->
+    <div class="round-log">
+      <div class="rl-title">本局记录</div>
+      <ul id="rl-list"></ul>
+    </div>
+  </section>
+
+  <!-- ============ 战报总结 ============ -->
+  <section class="view" id="view-summary">
+    <div class="card center">
+      <div class="sum-badge" id="sum-badge">🤝</div>
+      <h2 class="card-title" id="sum-title">本局结束</h2>
+      <div class="rate-wrap">
+        <div class="rate-num"><span id="sum-rate">0</span><small>%</small></div>
+        <div class="rate-label">默契度</div>
+      </div>
+      <p class="sum-comment" id="sum-comment"></p>
+      <div class="sum-meta" id="sum-meta"></div>
+
+      <div class="sum-rounds" id="sum-rounds"></div>
+
+      <div class="sum-actions">
+        <button class="btn-primary" id="btn-poster" type="button">🖼 生成战报图片</button>
+        <button class="btn-ghost" id="btn-copy-report" type="button">📋 复制文字战报</button>
+        <button class="btn-ghost" id="btn-again" type="button">🔁 再来一局</button>
+        <button class="btn-text" id="btn-to-history" type="button">查看全部存档</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 历史存档 ============ -->
+  <section class="view" id="view-history">
+    <div class="card">
+      <div class="hist-head">
+        <h2 class="card-title">📚 默契档案</h2>
+        <div>
+          <button class="btn-ghost small" id="btn-export-json" type="button">导出 JSON</button>
+          <button class="btn-text small" id="btn-clear-history" type="button">清空</button>
+        </div>
+      </div>
+      <div id="hist-list"></div>
+      <button class="btn-primary" id="btn-back-home" type="button">返回首页</button>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ 弹层：设置 ============ -->
+<div class="modal" id="modal-settings">
+  <div class="modal-box">
+    <h3>连接设置</h3>
+    <p class="modal-tip">默认走公共实时通道，无需注册。如果连不上，换一个试试。</p>
+    <label class="field">
+      <span class="field-label">实时通道</span>
+      <select id="sel-broker"></select>
+    </label>
+    <label class="field">
+      <span class="field-label">自定义地址（可选）</span>
+      <input type="text" id="in-broker-custom" placeholder="wss://你的地址/mqtt" autocomplete="off">
+    </label>
+    <div class="modal-actions">
+      <button class="btn-ghost" id="btn-settings-close" type="button">关闭</button>
+      <button class="btn-primary" id="btn-settings-save" type="button">保存并重连</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 弹层：玩法 ============ -->
+<div class="modal" id="modal-help">
+  <div class="modal-box">
+    <h3>怎么玩</h3>
+    <ol class="help-list">
+      <li>把网址发给朋友，两人约好同一个 <b>4 位数字</b> 房间码。</li>
+      <li>一分钟内先后输入房间码，即可进入同一个房间。</li>
+      <li>每轮有 <b>60 秒</b>，两人各自在心里想一个词并输入、锁定。</li>
+      <li><b>词语完全一样</b> → 直接命中！</li>
+      <li>不一样 → 双方看到彼此的词，若都认为意思一致，<b>两人都点「匹配成功」</b>才命中；点「下一题」则本题作废。</li>
+      <li>每轮结果都会存档，结束时生成默契战报。</li>
+    </ol>
+    <div class="modal-actions">
+      <button class="btn-primary" id="btn-help-close" type="button">知道了</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Toast ============ -->
+<div class="toast" id="toast"></div>
+
+<script src="vendor/mqtt.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
